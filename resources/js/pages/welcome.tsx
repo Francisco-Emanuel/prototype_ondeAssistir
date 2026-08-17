@@ -1,4 +1,4 @@
-import { Head, router, Link } from '@inertiajs/react';
+import { Head, router, Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 
 interface Platform { id: number; name: string; pivot: { monetization_type: string; url: string; }; }
@@ -76,9 +76,30 @@ export default function Welcome({ titles, filters }: { titles: Title[], filters:
         }
     };
 
+    // 1. Captura as propriedades globais (incluindo o usuário logado)
+    const { auth } = usePage().props as any;
+
     return (
         <div className="min-h-screen bg-[#0B0F19] text-gray-100 font-sans selection:bg-indigo-500 selection:text-white pb-20">
             <Head title="Onde Assistir" />
+
+            {/* BARRA DE NAVEGAÇÃO NO TOPO */}
+            <div className="absolute top-0 right-0 p-6 z-50 flex items-center gap-4">
+                {auth.user ? (
+                    <Link href="/dashboard" className="text-sm font-bold text-white bg-white/10 hover:bg-white/20 border border-white/10 px-5 py-2.5 rounded-full backdrop-blur-md transition-all shadow-lg">
+                        Painel de Controle
+                    </Link>
+                ) : (
+                    <>
+                        <Link href="/login" className="text-sm font-bold text-gray-300 hover:text-white px-5 py-2.5 transition-all">
+                            Entrar
+                        </Link>
+                        <Link href="/register" className="text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 px-5 py-2.5 rounded-full shadow-lg shadow-indigo-500/30 transition-all">
+                            Criar Conta
+                        </Link>
+                    </>
+                )}
+            </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <header className="mb-12 text-center flex flex-col items-center gap-6">

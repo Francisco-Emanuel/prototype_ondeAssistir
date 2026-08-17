@@ -3,18 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\Title;
+use Illuminate\Support\Facades\Artisan;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // Busca os títulos com as plataformas, ordenados pelos mais recentes, paginando de 10 em 10
+        // Busca os títulos com as plataformas, ordenados pelos mais recentes
         $titles = Title::with('platforms')->latest()->paginate(10);
 
         return Inertia::render('dashboard', [
             'titles' => $titles
         ]);
+    }
+
+    public function sync()
+    {
+        // Dispara o nosso comando inteligente do TMDB silenciosamente
+        Artisan::call('tmdb:auto-sync');
+
+        return redirect()->back();
     }
 
     public function destroy($id)
@@ -27,7 +36,6 @@ class DashboardController extends Controller
         // Exclui o título
         $title->delete();
 
-        // Volta para a página atual do painel
         return redirect()->back();
     }
 }

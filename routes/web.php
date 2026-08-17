@@ -17,6 +17,7 @@ Route::get('/titulo/{id}', [HomeController::class, 'show'])->name('title.show');
 // Rotas Restritas (Administrador)
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard/sync', [DashboardController::class, 'sync'])->name('dashboard.sync');
     Route::delete('/titulo/{id}', [DashboardController::class, 'destroy'])->name('title.destroy');
 });
 
