@@ -28,28 +28,38 @@ class ProcessTmdbTitle implements ShouldQueue
         $apiKey = env('TMDB_API_KEY');
 
         // Bate na API do TMDB pedindo detalhes em PT-BR e incluindo os provedores de streaming
+        // 1. Pede também os 'credits' (elenco)
         $response = Http::get("https://api.themoviedb.org/3/{$this->type}/{$this->tmdbId}", [
             'api_key' => $apiKey,
-            'append_to_response' => 'watch/providers',
+            'append_to_response' => 'watch/providers,credits',
             'language' => 'pt-BR'
         ]);
 
-        if ($response->failed()) {
-            Log::error("TMDB API falhou para o ID: {$this->tmdbId}");
-            return;
-        }
+        if ($response->failed()) return;
 
         $data =$response->json();
 
-        // 1. Grava ou Atualiza o Título
-        // TMDB usa 'title' para filmes e 'name' para séries
-        $titleName = $this->type === 'movie' ?$data['title'] : $data['name'];$posterUrl = $data['poster_path'] ? "https://image.tmdb.org/t/p/w500{$data['poster_path']}" : null;
+        $titleName = $this->type === 'movie' ? ($data['title'] ?? '') : ($data['name'] ?? '');$posterUrl = !empty($data['poster_path']) ? "https://image.tmdb.org/t/p/w500{$data['poster_path']}" : null;
+        
+        // Extrai os novos dados (mantenha os que já existem)
+        $synopsis = $data['overview'] ?? null;
+        $rating = $data['vote_average'] ?? null;
+        $cast = isset($data['credits']['cast']) ? collect($data['credits']['cast'])->take(5)->pluck('name')->join(', ') : null;
+        
+        // Pega a data dependendo se é filme ou série
+        $rawDate = $this->type === 'movie' ? ($data['release_date'] ?? null) : ($data['first_air_date'] ?? null);
+        $releaseDate = empty($rawDate) ? null : $rawDate;
 
+        // Salva no banco
         $title = Title::updateOrCreate(
-            ['external_api_id' => 'tmdb_' . $data['id']], // Prefixo para não chocar com o Watchmode
+            ['external_api_id' => 'tmdb_' . $data['id']],
             [
                 'name' => $titleName,
                 'poster_url' => $posterUrl,
+                'synopsis' => $synopsis,
+                'cast' => $cast,
+                'rating' => $rating,
+                'release_date' => $releaseDate, // <- Passando a data para o banco
             ]
         );
 

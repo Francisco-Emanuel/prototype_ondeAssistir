@@ -14,6 +14,10 @@ class Title extends Model
         'external_api_id',
         'name',
         'poster_url',
+        'synopsis',
+        'cast',
+        'rating',
+        'release_date',
     ];
 
     public function platforms(): BelongsToMany

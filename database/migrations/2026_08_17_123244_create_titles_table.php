@@ -16,6 +16,10 @@ return new class extends Migration
             $table->string('external_api_id')->unique()->index();
             $table->string('name');
             $table->string('poster_url')->nullable();
+            $table->text('synopsis')->nullable();
+            $table->text('cast')->nullable(); // Guardaremos os 5 atores principais como texto
+            $table->decimal('rating', 3, 1)->nullable(); // Nota de 0.0 a 10.0
+            $table->date('release_date')->nullable();
             $table->timestamps();
         });
     }

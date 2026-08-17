@@ -1,120 +1,122 @@
-import { Form, Head } from '@inertiajs/react';
-import InputError from '@/components/input-error';
-import PasswordInput from '@/components/password-input';
-import TextLink from '@/components/text-link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
-import { login } from '@/routes';
-import { store } from '@/routes/register';
+import { Head, Link, useForm } from '@inertiajs/react';
+import React, { FormEventHandler } from 'react';
 
-type Props = {
-    passwordRules: string;
-};
+export default function Register() {
+    const { data, setData, post, processing, errors, reset } = useForm({
+        name: '',
+        email: '',
+        password: '',
+        password_confirmation: '',
+    });
 
-export default function Register({ passwordRules }: Props) {
+    const submit: FormEventHandler = (e) => {
+        e.preventDefault();
+        post('/register', {
+            onFinish: () => reset('password', 'password_confirmation'),
+        });
+    };
+
     return (
-        <>
-            <Head title="Register" />
-            <Form
-                {...store.form()}
-                resetOnSuccess={['password', 'password_confirmation']}
-                disableWhileProcessing
-                className="flex flex-col gap-6"
-            >
-                {({ processing, errors }) => (
-                    <>
-                        <div className="grid gap-6">
-                            <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
-                                <Input
-                                    id="name"
-                                    type="text"
-                                    required
-                                    autoFocus
-                                    tabIndex={1}
-                                    autoComplete="name"
-                                    name="name"
-                                    placeholder="Full name"
-                                />
-                                <InputError
-                                    message={errors.name}
-                                    className="mt-2"
-                                />
-                            </div>
+        <div className="min-h-screen relative bg-[#080B12] text-gray-100 font-sans selection:bg-indigo-500 selection:text-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <Head title="Cadastro" />
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    required
-                                    tabIndex={2}
-                                    autoComplete="email"
-                                    name="email"
-                                    placeholder="email@example.com"
-                                />
-                                <InputError message={errors.email} />
-                            </div>
+            {/* Fundo Cinemático */}
+            <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center">
+                <div className="absolute top-[20%] right-[30%] w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
+                <div className="absolute bottom-[20%] left-[30%] w-96 h-96 bg-blue-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
+            </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="password">Password</Label>
-                                <PasswordInput
-                                    id="password"
-                                    required
-                                    tabIndex={3}
-                                    autoComplete="new-password"
-                                    name="password"
-                                    placeholder="Password"
-                                    passwordrules={passwordRules}
-                                />
-                                <InputError message={errors.password} />
-                            </div>
+            {/* Card Glassmorphism */}
+            <div className="relative z-10 w-full max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-8 sm:p-12 shadow-2xl">
+                
+                <div className="text-center mb-10">
+                    <h1 className="text-3xl font-black tracking-tight text-white mb-2">
+                        Criar Conta
+                    </h1>
+                    <p className="text-gray-400 text-sm font-medium">
+                        Junte-se ao sistema de gerenciamento.
+                    </p>
+                </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="password_confirmation">
-                                    Confirm password
-                                </Label>
-                                <PasswordInput
-                                    id="password_confirmation"
-                                    required
-                                    tabIndex={4}
-                                    autoComplete="new-password"
-                                    name="password_confirmation"
-                                    placeholder="Confirm password"
-                                    passwordrules={passwordRules}
-                                />
-                                <InputError
-                                    message={errors.password_confirmation}
-                                />
-                            </div>
+                <form onSubmit={submit} className="space-y-5">
+                    <div>
+                        <label htmlFor="name" className="block text-xs font-bold text-gray-400 mb-2 tracking-wide uppercase">Nome Completo</label>
+                        <input
+                            id="name"
+                            name="name"
+                            value={data.name}
+                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                            autoComplete="name"
+                            onChange={(e) => setData('name', e.target.value)}
+                            placeholder="Seu nome"
+                        />
+                        {errors.name && <p className="mt-2 text-sm text-red-400">{errors.name}</p>}
+                    </div>
 
-                            <Button
-                                type="submit"
-                                className="mt-2 w-full"
-                                tabIndex={5}
-                                data-test="register-user-button"
-                            >
-                                {processing && <Spinner />}
-                                Create account
-                            </Button>
-                        </div>
+                    <div>
+                        <label htmlFor="email" className="block text-xs font-bold text-gray-400 mb-2 tracking-wide uppercase">Email</label>
+                        <input
+                            id="email"
+                            type="email"
+                            name="email"
+                            value={data.email}
+                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                            autoComplete="username"
+                            onChange={(e) => setData('email', e.target.value)}
+                            placeholder="seu@email.com"
+                        />
+                        {errors.email && <p className="mt-2 text-sm text-red-400">{errors.email}</p>}
+                    </div>
 
-                        <div className="text-center text-sm text-muted-foreground">
-                            Already have an account?{' '}
-                            <TextLink href={login()} tabIndex={6}>
-                                Log in
-                            </TextLink>
-                        </div>
-                    </>
-                )}
-            </Form>
-        </>
+                    <div>
+                        <label htmlFor="password" className="block text-xs font-bold text-gray-400 mb-2 tracking-wide uppercase">Senha</label>
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            value={data.password}
+                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                            autoComplete="new-password"
+                            onChange={(e) => setData('password', e.target.value)}
+                            placeholder="••••••••"
+                        />
+                        {errors.password && <p className="mt-2 text-sm text-red-400">{errors.password}</p>}
+                    </div>
+
+                    <div>
+                        <label htmlFor="password_confirmation" className="block text-xs font-bold text-gray-400 mb-2 tracking-wide uppercase">Confirmar Senha</label>
+                        <input
+                            id="password_confirmation"
+                            type="password"
+                            name="password_confirmation"
+                            value={data.password_confirmation}
+                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                            autoComplete="new-password"
+                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                            placeholder="••••••••"
+                        />
+                        {errors.password_confirmation && <p className="mt-2 text-sm text-red-400">{errors.password_confirmation}</p>}
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="w-full flex justify-center py-3.5 px-4 mt-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-indigo-500 transition-all disabled:opacity-50 tracking-wider uppercase"
+                    >
+                        {processing ? 'Cadastrando...' : 'Criar Conta'}
+                    </button>
+                </form>
+
+                <p className="mt-8 text-center text-sm text-gray-500">
+                    Já possui conta?{' '}
+                    <Link href="/login" className="font-bold text-white hover:text-indigo-400 transition-colors">
+                        Fazer Login
+                    </Link>
+                </p>
+            </div>
+        </div>
     );
 }
 
-Register.layout = {
-    title: 'Create an account',
-    description: 'Enter your details below to create your account',
-};
+// Ignora o layout padrão
+Register.layout = (page: React.ReactNode) => <>{page}</>;

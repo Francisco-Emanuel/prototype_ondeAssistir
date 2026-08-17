@@ -1,125 +1,113 @@
-import { Form, Head } from '@inertiajs/react';
-import InputError from '@/components/input-error';
-import PasswordInput from '@/components/password-input';
-import TextLink from '@/components/text-link';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
-/* @chisel-registration */
-import { register } from '@/routes';
-/* @end-chisel-registration */
-import { store } from '@/routes/login';
-import { request } from '@/routes/password';
-/* @chisel-passkeys */
-import PasskeyVerify from '@/components/passkey-verify';
-/* @end-chisel-passkeys */
+import { Head, Link, useForm } from '@inertiajs/react';
+import React, { FormEventHandler } from 'react';
 
-type Props = {
-    status?: string;
-    canResetPassword: boolean;
-};
+export default function Login({ status }: { status?: string }) {
+    const { data, setData, post, processing, errors, reset } = useForm({
+        email: '',
+        password: '',
+        remember: false,
+    });
 
-export default function Login({ status, canResetPassword }: Props) {
+    const submit: FormEventHandler = (e) => {
+        e.preventDefault();
+        post('/login', {
+            onFinish: () => reset('password'),
+        });
+    };
+
     return (
-        <>
-            <Head title="Log in" />
+        <div className="min-h-screen relative bg-[#080B12] text-gray-100 font-sans selection:bg-indigo-500 selection:text-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <Head title="Entrar" />
 
-            {/* @chisel-passkeys */}
-            <PasskeyVerify />
-            {/* @end-chisel-passkeys */}
+            {/* Fundo Cinemático (Orbes de Luz Desfocados) */}
+            <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center">
+                <div className="absolute top-[20%] left-[30%] w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
+                <div className="absolute bottom-[20%] right-[30%] w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
+            </div>
 
-            <Form
-                {...store.form()}
-                resetOnSuccess={['password']}
-                className="flex flex-col gap-6"
-            >
-                {({ processing, errors }) => (
-                    <>
-                        <div className="grid gap-6">
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    required
-                                    autoFocus
-                                    tabIndex={1}
-                                    autoComplete="email"
-                                    placeholder="email@example.com"
-                                />
-                                <InputError message={errors.email} />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <div className="flex items-center">
-                                    <Label htmlFor="password">Password</Label>
-                                    {canResetPassword && (
-                                        <TextLink
-                                            href={request()}
-                                            className="ml-auto text-sm"
-                                            tabIndex={5}
-                                        >
-                                            Forgot your password?
-                                        </TextLink>
-                                    )}
-                                </div>
-                                <PasswordInput
-                                    id="password"
-                                    name="password"
-                                    required
-                                    tabIndex={2}
-                                    autoComplete="current-password"
-                                    placeholder="Password"
-                                />
-                                <InputError message={errors.password} />
-                            </div>
-
-                            <div className="flex items-center space-x-3">
-                                <Checkbox
-                                    id="remember"
-                                    name="remember"
-                                    tabIndex={3}
-                                />
-                                <Label htmlFor="remember">Remember me</Label>
-                            </div>
-
-                            <Button
-                                type="submit"
-                                className="mt-4 w-full"
-                                tabIndex={4}
-                                disabled={processing}
-                                data-test="login-button"
-                            >
-                                {processing && <Spinner />}
-                                Log in
-                            </Button>
-                        </div>
-
-                        {/* @chisel-registration */}
-                        <div className="text-center text-sm text-muted-foreground">
-                            Don't have an account?{' '}
-                            <TextLink href={register()} tabIndex={5}>
-                                Sign up
-                            </TextLink>
-                        </div>
-                        {/* @end-chisel-registration */}
-                    </>
-                )}
-            </Form>
-
-            {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
-                    {status}
+            {/* Card Glassmorphism */}
+            <div className="relative z-10 w-full max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-8 sm:p-12 shadow-2xl">
+                
+                <div className="text-center mb-10">
+                    <h1 className="text-3xl font-black tracking-tight text-white mb-2">
+                        Bem-vindo de volta
+                    </h1>
+                    <p className="text-gray-400 text-sm font-medium">
+                        Acesse seu painel administrativo.
+                    </p>
                 </div>
-            )}
-        </>
+
+                {status && <div className="mb-6 font-medium text-sm text-emerald-400 text-center">{status}</div>}
+
+                <form onSubmit={submit} className="space-y-6">
+                    <div>
+                        <label htmlFor="email" className="block text-sm font-bold text-gray-300 mb-2 tracking-wide uppercase">Email</label>
+                        <input
+                            id="email"
+                            type="email"
+                            name="email"
+                            value={data.email}
+                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                            autoComplete="username"
+                            onChange={(e) => setData('email', e.target.value)}
+                            placeholder="seu@email.com"
+                        />
+                        {errors.email && <p className="mt-2 text-sm text-red-400">{errors.email}</p>}
+                    </div>
+
+                    <div>
+                        <div className="flex items-center justify-between mb-2">
+                            <label htmlFor="password" className="block text-sm font-bold text-gray-300 tracking-wide uppercase">Senha</label>
+                            <Link href="/forgot-password" className="text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+                                Esqueceu a senha?
+                            </Link>
+                        </div>
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            value={data.password}
+                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                            autoComplete="current-password"
+                            onChange={(e) => setData('password', e.target.value)}
+                            placeholder="••••••••"
+                        />
+                        {errors.password && <p className="mt-2 text-sm text-red-400">{errors.password}</p>}
+                    </div>
+
+                    <div className="flex items-center">
+                        <input
+                            id="remember"
+                            type="checkbox"
+                            name="remember"
+                            checked={data.remember}
+                            onChange={(e) => setData('remember', e.target.checked)}
+                            className="rounded border-white/10 bg-black/30 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-gray-900 w-4 h-4 transition-colors"
+                        />
+                        <label htmlFor="remember" className="ml-2 block text-sm text-gray-400 select-none cursor-pointer">
+                            Lembrar de mim
+                        </label>
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-indigo-500 transition-all disabled:opacity-50 tracking-wider uppercase"
+                    >
+                        {processing ? 'Entrando...' : 'Entrar'}
+                    </button>
+                </form>
+
+                <p className="mt-8 text-center text-sm text-gray-500">
+                    Ainda não tem conta?{' '}
+                    <Link href="/register" className="font-bold text-white hover:text-indigo-400 transition-colors">
+                        Cadastre-se
+                    </Link>
+                </p>
+            </div>
+        </div>
     );
 }
 
-Login.layout = {
-    title: 'Log in to your account',
-    description: 'Enter your email and password below to log in',
-};
+// Ignora o layout padrão
+Login.layout = (page: React.ReactNode) => <>{page}</>;
