@@ -5,23 +5,28 @@ interface Platform { id: number; name: string; pivot: { monetization_type: strin
 interface Title { id: number; name: string; poster_url: string; release_date: string | null; platforms: Platform[]; }
 
 export default function Welcome({ titles, filters }: { titles: Title[], filters: { search?: string } }) {
-    const [searchTerm, setSearchTerm] = useState(filters.search || '');
-    const [isSearching, setIsSearching] = useState(false);
+        // Garantimos que nunca seja undefined
+        const safeSearch = filters.search || '';
+        
+        const [searchTerm, setSearchTerm] = useState(safeSearch);
+        const [isSearching, setIsSearching] = useState(false);
 
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(() => {
-            if (searchTerm !== filters.search) {
-                setIsSearching(true);
-                router.get('/', { search: searchTerm }, {
-                    preserveState: true,
-                    preserveScroll: true,
-                    replace: true,
-                    onFinish: () => setIsSearching(false)
-                });
-            }
-        }, 500);
-        return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm, filters.search]);
+        useEffect(() => {
+            const delayDebounceFn = setTimeout(() => {
+                // Agora comparamos vazio com vazio de forma segura
+                if (searchTerm !== safeSearch) {
+                    setIsSearching(true);
+                    router.get('/', { search: searchTerm }, { 
+                        preserveState: true, 
+                        preserveScroll: true,
+                        replace: true,
+                        onFinish: () => setIsSearching(false)
+                    });
+                }
+            }, 500);
+            
+            return () => clearTimeout(delayDebounceFn);
+        }, [searchTerm, safeSearch]); // Atualizamos a dependência aqui também
 
     // O "Pente Fino": Normaliza os nomes e remove as repetições de planos
     const getCleanPlatforms = (platforms: Platform[]) => {
@@ -90,14 +95,9 @@ export default function Welcome({ titles, filters }: { titles: Title[], filters:
                         Painel de Controle
                     </Link>
                 ) : (
-                    <>
-                        <Link href="/login" className="text-sm font-bold text-gray-300 hover:text-white px-5 py-2.5 transition-all">
-                            Entrar
-                        </Link>
-                        <Link href="/register" className="text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 px-5 py-2.5 rounded-full shadow-lg shadow-indigo-500/30 transition-all">
-                            Criar Conta
-                        </Link>
-                    </>
+                    <Link href="/login" className="text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 px-8 py-2.5 rounded-full shadow-lg shadow-indigo-500/30 transition-all tracking-wide uppercase">
+                        Entrar
+                    </Link>
                 )}
             </div>
 

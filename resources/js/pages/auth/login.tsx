@@ -98,12 +98,7 @@ export default function Login({ status }: { status?: string }) {
                     </button>
                 </form>
 
-                <p className="mt-8 text-center text-sm text-gray-500">
-                    Ainda não tem conta?{' '}
-                    <Link href="/register" className="font-bold text-white hover:text-indigo-400 transition-colors">
-                        Cadastre-se
-                    </Link>
-                </p>
+                
             </div>
         </div>
     );
