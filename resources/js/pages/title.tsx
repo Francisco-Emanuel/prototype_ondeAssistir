@@ -1,13 +1,16 @@
 import { Head, Link } from '@inertiajs/react';
 import React from 'react';
-import { getCleanPlatforms, getTypeColorClass, translateType } from '@/lib/platforms';
+// 1. Importamos o 'Platform' daqui também para não dar conflito
+import { getCleanPlatforms, getTypeColorClass, translateType, Platform } from '@/lib/platforms';
 
-interface Platform { id: number; name: string; pivot: { monetization_type: string; url: string; }; }
+// 2. Removemos o Platform duplicado daqui
 interface Title { id: number; name: string; poster_url: string; synopsis: string; cast: string; rating: number; release_date: string | null; platforms: Platform[]; }
 
 export default function TitleDetails({ title }: { title: Title }) {
 
-    
+    // 3. ESSAS ERAM AS VARIÁVEIS QUE ESTAVAM FALTANDO!
+    const cleanPlatforms = getCleanPlatforms(title.platforms);
+    const isAvailable = cleanPlatforms.length > 0;
 
     const renderStars = (rating: number) => {
         const score = (rating / 2).toFixed(1);
@@ -35,7 +38,7 @@ export default function TitleDetails({ title }: { title: Title }) {
 
         if (diffDays < 0) {
             return { text: "Em Breve", style: "bg-yellow-500/90 text-yellow-950 border-yellow-400/50 text-shadow-none" };
-        } else if (diffDays <= 90) { // Janela de 3 meses de cinema
+        } else if (diffDays <= 90) { 
             return { text: "Ainda nos cinemas", style: "bg-yellow-500/90 text-yellow-950 border-yellow-400/50 text-shadow-none" };
         } else {
             return { text: "Indisponível no BR", style: "bg-red-500/90 text-white border-red-400/50" };
@@ -68,7 +71,7 @@ export default function TitleDetails({ title }: { title: Title }) {
                     Voltar para a busca
                 </Link>
 
-                {/* Card Glassmorphism com Flex (Capa na Esquerda, Texto na Direita) */}
+                {/* Card Glassmorphism */}
                 <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-8 md:p-12 shadow-2xl relative overflow-hidden flex flex-col md:flex-row gap-8 md:gap-12 items-start">
 
                     {/* Chamada Dinâmica do Selo */}
@@ -122,7 +125,9 @@ export default function TitleDetails({ title }: { title: Title }) {
                                 {isAvailable ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                                         {cleanPlatforms.map((platform) => {
-                                            const colorClass = typeColors[platform.pivot.monetization_type] || typeColors.sub;
+                                            // 4. AQUI CORRIGIMOS A CHAMADA DA COR PARA A NOVA FUNÇÃO
+                                            const colorClass = getTypeColorClass(platform.pivot.monetization_type);
+                                            
                                             return (
                                                 <a key={platform.id} href={platform.pivot.url} target="_blank" rel="noreferrer" className={`flex flex-col px-5 py-4 rounded-xl border backdrop-blur-md transition-all duration-300 hover:-translate-y-1 shadow-lg ${colorClass}`}>
                                                     <span className="font-bold text-lg mb-1 truncate drop-shadow-sm text-white">{platform.name}</span>
