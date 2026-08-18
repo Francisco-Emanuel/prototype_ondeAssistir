@@ -1,5 +1,6 @@
 import { Head, router, Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
+import { getCleanPlatforms, getTypeColorClass, translateType } from '@/lib/platforms';
 
 interface Platform { id: number; name: string; pivot: { monetization_type: string; url: string; }; }
 interface Title { id: number; name: string; poster_url: string; release_date: string | null; platforms: Platform[]; }
@@ -28,38 +29,7 @@ export default function Welcome({ titles, filters }: { titles: Title[], filters:
             return () => clearTimeout(delayDebounceFn);
         }, [searchTerm, safeSearch]); // Atualizamos a dependência aqui também
 
-    // O "Pente Fino": Normaliza os nomes e remove as repetições de planos
-    const getCleanPlatforms = (platforms: Platform[]) => {
-        const unique = new Map<string, Platform>();
-
-        platforms.forEach(p => {
-            let cleanName = p.name;
-            const lowerName = p.name.toLowerCase();
-
-            // Intercepta e padroniza as maiores do Brasil
-            if (lowerName.includes('netflix')) cleanName = 'Netflix';
-            else if (lowerName.includes('prime video')) cleanName = 'Prime Video';
-            else if (lowerName.includes('disney')) cleanName = 'Disney+';
-            else if (lowerName.includes('max') && !lowerName.includes('climax')) cleanName = 'Max';
-            else if (lowerName.includes('apple tv')) cleanName = 'Apple TV+';
-            else if (lowerName.includes('globoplay')) cleanName = 'Globoplay';
-            else if (lowerName.includes('paramount')) cleanName = 'Paramount+';
-            else if (lowerName.includes('crunchyroll')) cleanName = 'Crunchyroll';
-            else {
-                // Se for outra, remove apenas os sufixos de plano com Regex
-                cleanName = cleanName.replace(/\s*(basic|standard|premium|com anúncios|ads|plan).*$/i, '').trim();
-            }
-
-            // A chave única é o Nome Limpo + O Tipo (Assinatura, Aluguel, etc)
-            const key = `${cleanName}-${p.pivot.monetization_type}`;
-
-            if (!unique.has(key)) {
-                unique.set(key, { ...p, name: cleanName });
-            }
-        });
-
-        return Array.from(unique.values());
-    };
+    
     // Calcula o status do filme baseado na data
     const getBadgeInfo = (title: Title, isAvailable: boolean) => {
         if (isAvailable) return null;
